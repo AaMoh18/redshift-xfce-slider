@@ -17,15 +17,15 @@ A lightweight, native-feeling screen color temperature slider built using Python
 
 Open your terminal and run:
 
-\`\`\`bash
-git clone https://github.com/AaMoh18/redshift-xfce-slider.git
 
-cd redshift-xfce-slider
+`git clone https://github.com/AaMoh18/redshift-xfce-slider.git` 
 
-chmod +x install.sh
+` cd redshift-xfce-slider` 
 
-./install.sh
-\`\`\`
+` chmod +x install.sh` 
+
+` ./install.sh` 
+
 
 ## Usage
 After installation, right-click your Xfce panel, choose **Add New Items**, select **Launcher**, and click **Add**. Edit the launcher and set:
