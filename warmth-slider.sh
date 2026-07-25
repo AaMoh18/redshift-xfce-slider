@@ -1,6 +1,6 @@
 #!/bin/bash
 
-SAVE_FILE="$HOME/.config/saved_warmth_val"
+SAVE_FILE="$HOME/.config/warmth-slider/saved_warmth_val"
 CONFIG_DIR="$HOME/.config/warmth-slider"
 
 # Restore previous temperature setting on boot
