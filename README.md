@@ -31,4 +31,5 @@ Open your terminal and run:
 After installation, right-click your Xfce panel, choose **Add New Items**, select **Launcher**, and click **Add new empty item**. Edit the launcher and set:
 * **Name:** Redshift slider
 * **Command:** `bash -c "$HOME/.config/warmth-slider/warmth-slider.sh"`
+* **Comment:** Adjust screen warmth strength using a slider
 * **Icon:** Select your custom `WarmRedshift.png` icon.
