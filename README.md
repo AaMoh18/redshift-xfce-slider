@@ -19,11 +19,8 @@ Open your terminal and run:
 
 \`\`\`bash
 git clone https://github.com/AaMoh18/redshift-xfce-slider.git
-
-cd warmth-slider
-
+cd redshift-xfce-slider
 chmod +x install.sh
-
 ./install.sh
 \`\`\`
 
