@@ -33,3 +33,22 @@ After installation, right-click your Xfce panel, choose **Add New Items**, selec
 * **Command:** `bash -c "$HOME/.config/warmth-slider/warmth-slider.sh"`
 * **Comment:** Adjust screen warmth strength using a slider
 * **Icon:** Select your custom `WarmRedshift.png` icon.
+
+
+## Keyboard Shortcuts (Optional)
+You can assign global keyboard shortcuts to adjust your screen warmth instantly without needing to open the slider window.
+
+1. Open **Settings Manager** > **Keyboard** > **Application Shortcuts**.
+2. Click **Add** and paste any of the following commands:
+
+* **Increase Warmth (+5%):**
+  ```bash
+  bash -c "$HOME/.config/warmth-slider/warmth-slider.sh +5%"
+  
+* **Decrease Warmth (-5%):**
+  ```bash
+  bash -c "$HOME/.config/warmth-slider/warmth-slider.sh -5%"
+
+* **Reset to Normal (0%):**
+  ```bash
+  bash -c "$HOME/.config/warmth-slider/warmth-slider.sh 0%"
