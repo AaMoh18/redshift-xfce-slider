@@ -29,6 +29,6 @@ Open your terminal and run:
 
 ## Usage
 After installation, right-click your Xfce panel, choose **Add New Items**, select **Launcher**, and click **Add**. Edit the launcher and set:
-* **Name:** Warmth
-* **Command:** `~/.config/warmth-slider/warmth-slider.sh`
-* **Icon:** Select your custom `WarmRedshift.png` icon.
+* **Name:** Redshift Slider
+* **Command:** `$HOME/.config/warmth-slider/warmth-slider.sh`
+* **Icon:** Select your custom `WarmRedshift.png` icon (located in `~/.config/warmth-slider/WarmRedshift.png`).
