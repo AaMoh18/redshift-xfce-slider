@@ -18,7 +18,7 @@ A lightweight, native-feeling screen color temperature slider built using Python
 Open your terminal and run:
 
 \`\`\`bash
-git clone https://github.com/YOUR-USERNAME/warmth-slider.git
+git clone https://github.com/AaMoh18/redshift-xfce-slider.git
 cd warmth-slider
 chmod +x install.sh
 ./install.sh
