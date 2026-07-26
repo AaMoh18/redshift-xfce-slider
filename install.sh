@@ -5,10 +5,10 @@ echo "Installing Warmth Slider..."
 # Get the directory where this install.sh script is currently running from
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-# 1. Check and install required system dependencies
-if ! command -v redshift &> /dev/null || ! python3 -c "import gi" &> /dev/null; then
-    echo "Installing missing dependencies (redshift and python3-gi)..."
-    sudo apt update && sudo apt install -y redshift python3-gi python3-cairo
+# 1. Check and install required system dependencies (including xdotool)
+if ! command -v redshift &> /dev/null || ! command -v xdotool &> /dev/null || ! python3 -c "import gi" &> /dev/null; then
+    echo "Installing missing dependencies (redshift, xdotool, python3-gi, python3-cairo)..."
+    sudo apt update && sudo apt install -y redshift xdotool python3-gi python3-cairo
 fi
 
 # 2. Create config directory and move files safely using absolute paths
