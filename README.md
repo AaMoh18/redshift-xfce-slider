@@ -4,13 +4,15 @@ A lightweight, native-feeling screen color temperature slider built using Python
 
 ## Features
 * **Native GTK3 Interface:** Undecorated window that automatically inherits your desktop theme, fonts, and styling.
+* **Smart Cursor Positioning:** Instantly pops up right where your mouse cursor clicked on the panel (powered by `xdotool`).
 * **Intuitive Control:** Sliding right increases warmth smoothly from 0% to 100%.
 * **Live Dynamic Toggle:** Switch on-the-fly between percentage view and exact Kelvin temperature (`6500K` down to `2000K`).
 * **Persistent Memory:** Automatically restores your preferred screen warmth on system boot.
-* **Optimized Performance:** Live visual updates during drag, writing safely to disk only on release to prevent lag.
+* **Optimized Performance:** Debounced live updates during drag prevent process thrashing, writing safely to disk only on release.
 
 ## Requirements
 * `redshift`
+* `xdotool` (required for cursor-aware window positioning)
 * `python3` with `python3-gi` (PyGObject)
 
 ## Installation
