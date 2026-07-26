@@ -20,26 +20,28 @@ A lightweight, native-feeling screen color temperature slider built using Python
 Open your terminal and run:
 
 ```bash
-git clone https://github.com/AaMoh18/redshift-xfce-slider.git
+git clone [https://github.com/AaMoh18/redshift-xfce-slider.git](https://github.com/AaMoh18/redshift-xfce-slider.git)
 cd redshift-xfce-slider
 chmod +x install.sh
 ./install.sh
 ```
+(This automatically installs dependencies, configures boot-restore, and registers Warmth Slider as a system application).
 
 ## Usage
-After installation, right-click your Xfce panel, choose **Add New Items**, select **Launcher**, and click **Add new empty item**. Edit the launcher and set:
-* **Name:** Redshift slider
-* **Command:** `bash -c "$HOME/.config/warmth-slider/warmth-slider.sh"`
-* **Comment:** Adjust screen warmth strength using a slider
-* **Icon:** Select your custom `WarmRedshift.png` icon.
+After installation, Warmth Slider is registered in your system applications. You can add it to your panel easily:
+* Right-click your Xfce panel and choose Add New Items.
+* Select Launcher and click Add.
+* Click the folder/plus icon in the launcher settings to browse installed applications, select Warmth Slider, and click Add.
+
 
 ## Autostart on Login (Optional)
-To automatically restore your last saved screen warmth whenever you turn on or restart your computer, run this single command in your terminal to add it to your system startup:
+The install.sh script automatically handles boot restoration. If you ever need to set it up manually with a custom startup delay, run this command:
+
 
   ```bash
 mkdir -p ~/.config/autostart && echo -e "[Desktop Entry]\nType=Application\nName=Warmth Slider Boot\nExec=bash -c 'sleep 4 && \"$HOME/.config/warmth-slider/warmth-slider.sh\" boot'\nHidden=false\nNoDisplay=false\nX-GNOME-Autostart-enabled=true" > ~/.config/autostart/warmth-slider.desktop
 ```
-(If not working try tweaking the delay value, thats 4(sleep 4) in this case)
+(If it triggers too early, you can adjust the sleep 4 delay value).
 
 ## Keyboard Shortcuts (Optional)
 You can assign global keyboard shortcuts to adjust your screen warmth instantly without needing to open the slider window.
