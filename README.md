@@ -17,15 +17,12 @@ A lightweight, native-feeling screen color temperature slider built using Python
 
 Open your terminal and run:
 
-
-`git clone https://github.com/AaMoh18/redshift-xfce-slider.git` 
-
-` cd redshift-xfce-slider` 
-
-` chmod +x install.sh` 
-
-` ./install.sh` 
-
+```bash
+git clone https://github.com/AaMoh18/redshift-xfce-slider.git
+cd redshift-xfce-slider
+chmod +x install.sh
+./install.sh
+```
 
 ## Usage
 After installation, right-click your Xfce panel, choose **Add New Items**, select **Launcher**, and click **Add new empty item**. Edit the launcher and set:
@@ -34,7 +31,12 @@ After installation, right-click your Xfce panel, choose **Add New Items**, selec
 * **Comment:** Adjust screen warmth strength using a slider
 * **Icon:** Select your custom `WarmRedshift.png` icon.
 
+## Autostart on Login (Optional)
+To automatically restore your last saved screen warmth whenever you turn on or restart your computer, run this single command in your terminal to add it to your system startup:
 
+  ```bash
+  mkdir -p ~/.config/autostart && echo -e "[Desktop Entry]\nType=Application\nName=Warmth Slider Boot\nExec=$HOME/.config/warmth-slider/warmth-slider.sh boot\nHidden=false\nNoDisplay=false\nX-GNOME-Autostart-enabled=true" > ~/.config/autostart/warmth-slider.desktop
+```
 ## Keyboard Shortcuts (Optional)
 You can assign global keyboard shortcuts to adjust your screen warmth instantly without needing to open the slider window.
 
