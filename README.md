@@ -37,6 +37,8 @@ To automatically restore your last saved screen warmth whenever you turn on or r
   ```bash
 mkdir -p ~/.config/autostart && echo -e "[Desktop Entry]\nType=Application\nName=Warmth Slider Boot\nExec=bash -c 'sleep 4 && \"$HOME/.config/warmth-slider/warmth-slider.sh\" boot'\nHidden=false\nNoDisplay=false\nX-GNOME-Autostart-enabled=true" > ~/.config/autostart/warmth-slider.desktop
 ```
+(If not working try tweaking the delay value, thats 4(sleep 4) in this case)
+
 ## Keyboard Shortcuts (Optional)
 You can assign global keyboard shortcuts to adjust your screen warmth instantly without needing to open the slider window.
 
