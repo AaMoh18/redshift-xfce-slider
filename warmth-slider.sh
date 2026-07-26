@@ -180,5 +180,8 @@ class WarmthWindow(Gtk.Window):
 
 win = WarmthWindow()
 win.show_all()
+
+win.on_change(win.scale)
+
 Gtk.main()
 EOF
