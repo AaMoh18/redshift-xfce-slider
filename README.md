@@ -35,7 +35,7 @@ After installation, right-click your Xfce panel, choose **Add New Items**, selec
 To automatically restore your last saved screen warmth whenever you turn on or restart your computer, run this single command in your terminal to add it to your system startup:
 
   ```bash
-  mkdir -p ~/.config/autostart && echo -e "[Desktop Entry]\nType=Application\nName=Warmth Slider Boot\nExec=$HOME/.config/warmth-slider/warmth-slider.sh boot\nHidden=false\nNoDisplay=false\nX-GNOME-Autostart-enabled=true" > ~/.config/autostart/warmth-slider.desktop
+mkdir -p ~/.config/autostart && echo -e "[Desktop Entry]\nType=Application\nName=Warmth Slider Boot\nExec=bash -c 'sleep 4 && \"$HOME/.config/warmth-slider/warmth-slider.sh\" boot'\nHidden=false\nNoDisplay=false\nX-GNOME-Autostart-enabled=true" > ~/.config/autostart/warmth-slider.desktop
 ```
 ## Keyboard Shortcuts (Optional)
 You can assign global keyboard shortcuts to adjust your screen warmth instantly without needing to open the slider window.
