@@ -49,3 +49,23 @@ echo "To use: Add a custom Application Launcher to your panel,"
 echo "set the command to: bash -c '$CONFIG_DIR/warmth-slider.sh'"
 echo "and choose your WarmRedshift.png icon!"
 echo "=================================================="
+
+# 4. Register as a system application menu entry
+APPS_DIR="$HOME/.local/share/applications"
+mkdir -p "$APPS_DIR"
+
+cat << EOF > "$APPS_DIR/warmth-slider.desktop"
+[Desktop Entry]
+Type=Application
+Name=Warmth Slider
+Comment=Adjust screen warmth strength using a slider
+Exec=bash -c "$CONFIG_DIR/warmth-slider.sh"
+Icon=$CONFIG_DIR/WarmRedshift.png
+Terminal=false
+Categories=Utility;Settings;
+EOF
+
+# Update desktop database if available
+if command -v update-desktop-database &> /dev/null; then
+    update-desktop-database "$APPS_DIR" 2>/dev/null
+fi
