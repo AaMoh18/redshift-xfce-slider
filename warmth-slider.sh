@@ -1,13 +1,21 @@
 #!/bin/bash
 
+MIN_KELVIN=2000
+MAX_KELVIN=6500
+STEPS=100
+STEP_SIZE=$(( (MAX_KELVIN - MIN_KELVIN) / STEPS ))
+
 SAVE_FILE="$HOME/.config/warmth-slider/saved_warmth_val"
 CONFIG_DIR="$HOME/.config/warmth-slider"
+
+# Ensure config directory exists
+mkdir -p "$CONFIG_DIR"
 
 # Restore previous temperature setting on boot
 if [ "$1" == "boot" ]; then
     if [ -f "$SAVE_FILE" ]; then
         VAL=$(cat "$SAVE_FILE")
-        if [ "$VAL" -lt 6500 ]; then
+        if [ "$VAL" -lt "$MAX_KELVIN" ]; then
             redshift -P -O "$VAL"
         else
             redshift -x
@@ -16,7 +24,7 @@ if [ "$1" == "boot" ]; then
     exit 0
 fi
 
-CURRENT=$(cat "$SAVE_FILE" 2>/dev/null || echo 6500)
+CURRENT=$(cat "$SAVE_FILE" 2>/dev/null || echo "$MAX_KELVIN")
 
 # Handle percentage syntax: relative (+5%, -5%) or absolute (50%)
 if [[ "$1" =~ ^([+-]?)([0-9]+)%$ ]]; then
@@ -24,26 +32,22 @@ if [[ "$1" =~ ^([+-]?)([0-9]+)%$ ]]; then
     VAL_PCT="${BASH_REMATCH[2]}"
     
     if [ -n "$SIGN" ]; then
-        # Relative adjustment: 1% = 45 Kelvin
-        # +5% increases warmth (subtracts Kelvin), -5% decreases warmth (adds Kelvin)
-        DELTA=$(( VAL_PCT * 45 ))
+        DELTA=$(( VAL_PCT * STEP_SIZE ))
         if [ "$SIGN" == "+" ]; then
             VAL=$(( CURRENT - DELTA ))
         else
             VAL=$(( CURRENT + DELTA ))
         fi
     else
-        # Absolute adjustment: e.g., passing "50%" jumps directly to 50% warmth
-        VAL=$(( 6500 - (VAL_PCT * 45) ))
+        VAL=$(( MAX_KELVIN - (VAL_PCT * STEP_SIZE) ))
     fi
 
-    # Clamp safety limits between 2000K (100% warmth) and 6500K (0% warmth)
-    [ "$VAL" -lt 2000 ] && VAL=2000
-    [ "$VAL" -gt 6500 ] && VAL=6500
+    [ "$VAL" -lt "$MIN_KELVIN" ] && VAL="$MIN_KELVIN"
+    [ "$VAL" -gt "$MAX_KELVIN" ] && VAL="$MAX_KELVIN"
     
     echo "$VAL" > "$SAVE_FILE"
     
-    if [ "$VAL" -ge 6500 ]; then
+    if [ "$VAL" -ge "$MAX_KELVIN" ]; then
         redshift -x 2>/dev/null
     else
         redshift -P -O "$VAL" 2>/dev/null
@@ -51,11 +55,28 @@ if [[ "$1" =~ ^([+-]?)([0-9]+)%$ ]]; then
     exit 0
 fi
 
-python3 - "$SAVE_FILE" "$CURRENT" << 'EOF'
+# Re-apply saved warmth in the background ONLY when opening the GUI window
+if [ "$CURRENT" -lt "$MAX_KELVIN" ]; then
+    redshift -P -O "$CURRENT" 2>/dev/null &
+else
+    redshift -x 2>/dev/null &
+fi
+
+# --- INSTANTLY CAPTURE MOUSE COORDS IN BASH AT T=0ms ---
+if command -v xdotool &> /dev/null; then
+    eval $(xdotool getmouselocation --shell 2>/dev/null)
+    MOUSE_X=${X:-500}
+    MOUSE_Y=${Y:-500}
+else
+    MOUSE_X=500
+    MOUSE_Y=800
+fi
+
+python3 - "$SAVE_FILE" "$CURRENT" "$MOUSE_X" "$MOUSE_Y" "$MIN_KELVIN" "$MAX_KELVIN" << 'EOF'
 import os, sys, subprocess
 import gi
 gi.require_version('Gtk', '3.0')
-from gi.repository import Gtk, Gdk
+from gi.repository import Gtk, Gdk, GLib
 
 save_file = sys.argv[1]
 try:
@@ -63,8 +84,22 @@ try:
 except ValueError:
     current_kelvin = 6500
 
-# Map 6500K-2000K range to a 0-100% scale
-current_pct = max(0, min(100, int((6500 - current_kelvin) / 45)))
+try:
+    mouse_x = int(sys.argv[3])
+    mouse_y = int(sys.argv[4])
+except (IndexError, ValueError):
+    mouse_x, mouse_y = 500, 500
+
+try:
+    min_kelvin = int(sys.argv[5])
+    max_kelvin = int(sys.argv[6])
+except (IndexError, ValueError):
+    min_kelvin, max_kelvin = 2000, 6500
+
+step_size = (max_kelvin - min_kelvin) / 100.0
+
+# Map range to 0-100% scale
+current_pct = max(0, min(100, int((max_kelvin - current_kelvin) / step_size)))
 
 class WarmthWindow(Gtk.Window):
     def __init__(self):
@@ -74,35 +109,29 @@ class WarmthWindow(Gtk.Window):
         self.set_skip_taskbar_hint(True)
         self.set_border_width(10)
         self.set_default_size(250, -1)
-        self.set_position(Gtk.WindowPosition.MOUSE)
         
-        # Close when losing focus or pressing Escape
+        self.move(mouse_x - 125, mouse_y - 130)
+        
         self.connect("focus-out-event", lambda w, e: Gtk.main_quit())
         self.connect("key-press-event", self.on_key)
         
-# Main layout is a vertical stack from top to bottom
+        self.timeout_id = None
+        
         vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
         self.add(vbox)
         
-        # --- TOP ROW: Icon spacer + Bold Title (Auto-aligned!) ---
         title_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=10)
-        
-        # Create an invisible placeholder box that matches the exact width of your icon
-        # This automatically forces the "Warmth" label to align with the slider below it.
         spacer = Gtk.Box()
-        spacer.set_size_request(32, -1)  # Matches LARGE_TOOLBAR icon width (~32px)
+        spacer.set_size_request(32, -1)
         title_box.pack_start(spacer, False, False, 0)
         
         label = Gtk.Label()
         label.set_markup("<b>Warmth</b>")
         label.set_xalign(0)
         title_box.pack_start(label, True, True, 0)
-        
         vbox.pack_start(title_box, False, False, 0)
         
-        # --- SECOND ROW: Icon + Slider ---
         slider_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=10)
-        
         icon_theme = Gtk.IconTheme.get_default()
         image = Gtk.Image()
         for icon_name in ["redshift", "gammastep", "preferences-desktop-display"]:
@@ -112,10 +141,8 @@ class WarmthWindow(Gtk.Window):
                 slider_box.pack_start(image, False, False, 0)
                 break
                 
-        # Slider setup
         adj = Gtk.Adjustment(value=current_pct, lower=0, upper=100, step_increment=1, page_increment=10)
         self.scale = Gtk.Scale(orientation=Gtk.Orientation.HORIZONTAL, adjustment=adj)
-        
         self.scale.set_digits(0)
         self.scale.set_draw_value(True)
         self.scale.set_value_pos(Gtk.PositionType.BOTTOM)
@@ -129,7 +156,6 @@ class WarmthWindow(Gtk.Window):
         slider_box.pack_start(self.scale, True, True, 0)
         vbox.pack_start(slider_box, True, True, 0)
         
-        # Toggle switch row at the bottom
         switch_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=10)
         switch_label = Gtk.Label(label="Show warmth value (Kelvin)")
         switch_label.set_xalign(0)
@@ -145,28 +171,46 @@ class WarmthWindow(Gtk.Window):
     def format_scale_value(self, scale, val):
         pct = int(val)
         if self.show_kelvin:
-            return f"{6500 - (pct * 45)}K"
+            kelv = int(max_kelvin - (pct * step_size))
+            return f"{kelv}K"
         return f"{pct}%"
 
     def on_switch_toggled(self, switch, gparam):
         self.show_kelvin = switch.get_active()
         self.scale.queue_draw()
 
+    def apply_redshift(self, kelvin):
+        self.timeout_id = None
+        if kelvin >= max_kelvin:
+            subprocess.run(["redshift", "-x"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        else:
+            subprocess.run(["redshift", "-P", "-O", str(kelvin)], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        return False
+
     def on_change(self, scale):
-        # Instant visual screen preview during drag (avoids file I/O lag)
         pct = int(scale.get_value())
-        kelvin = 6500 - (pct * 45)
+        kelvin = int(max_kelvin - (pct * step_size))
+        
+        # Debounce redshift calls during fast dragging to prevent process thrashing
+        if self.timeout_id is not None:
+            GLib.source_remove(self.timeout_id)
+        
+        self.timeout_id = GLib.timeout_add(35, lambda: self.apply_redshift(kelvin))
+
+    def on_release(self, widget, event):
+        # Clear any pending debounced call and apply immediately on release
+        if self.timeout_id is not None:
+            GLib.source_remove(self.timeout_id)
+            self.timeout_id = None
             
-        if kelvin >= 6500 or pct == 0:
+        pct = int(self.scale.get_value())
+        kelvin = int(max_kelvin - (pct * step_size))
+        
+        if kelvin >= max_kelvin:
             subprocess.run(["redshift", "-x"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         else:
             subprocess.run(["redshift", "-P", "-O", str(kelvin)], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
-    def on_release(self, widget, event):
-        # Writes to disk ONLY once when mouse click or key release finishes
-        pct = int(self.scale.get_value())
-        kelvin = 6500 - (pct * 45)
-        
         try:
             with open(save_file, "w") as f:
                 f.write(str(kelvin))
@@ -180,8 +224,6 @@ class WarmthWindow(Gtk.Window):
 
 win = WarmthWindow()
 win.show_all()
-
-win.on_change(win.scale)
 
 Gtk.main()
 EOF
